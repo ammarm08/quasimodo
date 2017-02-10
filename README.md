@@ -1,6 +1,6 @@
 # Quasimodo
 
-Automating some NodeJS profiling/load-testing so I have more time for water cooler talk ...
+Automating some NodeJS profiling/load-testing so I have more time for shenanigans
 
 ## Dependencies
 
