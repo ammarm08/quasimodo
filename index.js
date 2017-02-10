@@ -1,6 +1,6 @@
 'use strict';
 
-const exec = require('child_process').exec,
+const spawn = require('child_process').spawn,
       fs   = require('fs'),
       log  = (...args) => console.log(...args);
 
@@ -35,8 +35,8 @@ const quasimodo = module.exports = {
     }
   },
 
-  registerTest: function registerTest (name, path, flags) {
-    this.tests[name] = `node --prof ${flags} ${path}`;
+  registerTest: function registerTest (name, path, flags, args = '') {
+    this.tests[name] = `node --prof ${flags} ${path} ${args}`;
   },
 
   before: function before (commands = []) {
@@ -64,6 +64,7 @@ const quasimodo = module.exports = {
   },
 
   run: function () {
+    log(this.tests);
     if (!fs.existsSync(`${DEFAULT_DIR}`)) fs.mkdirSync(`${DEFAULT_DIR}`);
 
     log(`Tests registered: ${Object.keys(this.tests).length} ...\n`);
@@ -73,14 +74,8 @@ const quasimodo = module.exports = {
 
     fs.writeFileSync(`${DEFAULT_DIR}/${DEFAULT_SH}`, script);
 
-    const testRunner = exec(`sh ${DEFAULT_DIR}/${DEFAULT_SH}`);
-    testRunner.stdout.on('data', d => {
-      console.log(d);
-    });
-
-    testRunner.stderr.on('data', e => {
-      console.log(e);
-    });
+    const child = spawn('bash', [`${DEFAULT_DIR}/${DEFAULT_SH}`], {stido: 'inherit'});
+    child.on('exit', process.exit);
   }
 }
 
@@ -105,8 +100,16 @@ const quasimodo = module.exports = {
        cmds.push(`${app.loadtest_path} | grep "Time taken for tests:" >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}`);
        cmds.push(`${KILL_NODE} & sleep 2`);
        cmds.push(`${PROCESS_NODE_LOGS} > ${DEFAULT_DIR}/profile-${test}.txt && rm ./isolate-*`);
+
+    // time
      } else {
-       // time specific for programs that terminate after completing a specific task
+       cmds.push('NOW=`date +%s%N`');
+       cmds.push(`${app.tests[test]}`);
+       cmds.push('THEN=`date +%s%N`');
+       cmds.push('DIFF=`expr $THEN - $NOW`');
+       cmds.push('MILLIS=`expr $DIFF / 1000000`');
+       cmds.push(`echo $MILLIS ms >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}`)
+       cmds.push(`${PROCESS_NODE_LOGS} > ${DEFAULT_DIR}/profile-${test}.txt && rm ./isolate-*`);
      }
 
      cmds.push(...app.afterEachTasks);
@@ -116,25 +119,6 @@ const quasimodo = module.exports = {
 
    return cmds.join('\n');
  }
-
- // function getProcessName(path) {
- //   let start = 0;
- //   let end = 0;
- //
- //   for (let i = 0; i < path.length; i++) {
- //     let char = path[i];
- //     if (char === '/') start = i;
- //     if (char === '.') end = i;
- //   }
- //
- //   const pname = start > end ? path.slice(start + 1) : path.slice(start + 1, end);
- //
- //   if (pname.length === 0) {
- //     throw Error ('parseError: invalid nodeJS path');
- //   }
- //
- //   return pname;
- // }
 
 /**
  *
