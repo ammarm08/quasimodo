@@ -1,1 +1,3 @@
 node_modules
+examples/quasimodo_tests
+examples/isolate*

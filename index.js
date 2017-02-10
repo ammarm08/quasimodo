@@ -4,6 +4,16 @@ const exec = require('child_process').exec,
       fs   = require('fs'),
       log  = (...args) => console.log(...args);
 
+const DEFAULT_DIR = './quasimodo_tests',
+      DEFAULT_SH = 'quasimodo.sh',
+      DEFAULT_OUTPUT = 'results.txt',
+      DEFAULT_PROFILING = 'profile-*.txt';
+
+const LOADTEST_PROGRAM = 'ab',
+      KILL_NODE = 'pgrep -n node | xargs kill',
+      PROCESS_NODE_LOGS = `node --prof-process ./isolate-*`,
+      CLEAN_UP = `rm ./isolate-* ${DEFAULT_DIR}/${DEFAULT_OUTPUT} ${DEFAULT_DIR}/${DEFAULT_PROFILING}`;
+
 const quasimodo = module.exports = {
   tests: {},
 
@@ -13,7 +23,6 @@ const quasimodo = module.exports = {
   afterEachTasks: [],
 
   loadtest_path: '',
-  output_path: './results.txt',
 
   configure: function configure (options = {}) {
     log('Configuring tests ...\n');
@@ -22,14 +31,12 @@ const quasimodo = module.exports = {
 
       if (opt === 'loadtest') {
         this.loadtest_path = parseLoadTest(v);
-      } else if (opt === 'output') {
-        this.output_path = parseOutput(v);
       }
     }
   },
 
   registerTest: function registerTest (name, path, flags) {
-    this.tests[name] = `node ${path} ${flags} --prof`;
+    this.tests[name] = `node --prof ${flags} ${path}`;
   },
 
   before: function before (commands = []) {
@@ -57,68 +64,83 @@ const quasimodo = module.exports = {
   },
 
   run: function () {
-    // writeTestScript(this);
+    if (!fs.existsSync(`${DEFAULT_DIR}`)) fs.mkdirSync(`${DEFAULT_DIR}`);
+
     log(`Tests registered: ${Object.keys(this.tests).length} ...\n`);
     log(`Running all tests ...\n`);
 
-    log(`Running all pre-test tasks ...\n`);
-    // TODO: run all pre-test tasks
+    const script = writeTestScript(this);
 
-    // exec('bash quasimodo-test.sh')
+    fs.writeFileSync(`${DEFAULT_DIR}/${DEFAULT_SH}`, script);
 
-    // deleteTestScript();
-    log(`DONE`);
+    const testRunner = exec(`sh ${DEFAULT_DIR}/${DEFAULT_SH}`);
+    testRunner.stdout.on('data', d => {
+      console.log(d);
+    });
+
+    testRunner.stderr.on('data', e => {
+      console.log(e);
+    });
   }
 }
 
 /**
  *
- * Outsource tests to a bash scripts
+ * Outsource tests to a shell script
  */
 
  function writeTestScript (app) {
-   // TODO: write to quasimodo-test.sh
-   /*
+   const cmds = [];
 
-   for b in before:
-    output += parseCommand(b);
+   cmds.push(`${CLEAN_UP}`);
+   cmds.push(...app.beforeTasks);
 
-   for test in tests:
-    for (b in beforEach):
-      output += parseCommand(b)
+   for (let test in app.tests) {
+     cmds.push(...app.beforeEachTasks);
+     cmds.push(`echo ${test} >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}; echo 'Running ${test} test'`);
 
-    echo test name > results
+     // loadtest
+     if (app.loadtest_path) {
+       cmds.push(`${app.tests[test]} & sleep 2`);
+       cmds.push(`${app.loadtest_path} | grep "Time taken for tests:" >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}`);
+       cmds.push(`${KILL_NODE} & sleep 2`);
+       cmds.push(`${PROCESS_NODE_LOGS} > ${DEFAULT_DIR}/profile-${test}.txt && rm ./isolate-*`);
+     } else {
+       // time specific for programs that terminate after completing a specific task
+     }
 
-    * if load test
-      run test & sleep 2
-      run mem/cpu stuff
-      run loadtest | grep some stuff > write it to results
-    * else
-      time run test > write to results & sleep 2
-      run mem/cpu stuff
+     cmds.push(...app.afterEachTasks);
+   }
 
-    kill process
-    
-   */
+   cmds.push(...app.beforeTasks);
+
+   return cmds.join('\n');
  }
 
- function deleteTestScript () {
-   // TODO: delete quasimodo-test.sh
- }
+ // function getProcessName(path) {
+ //   let start = 0;
+ //   let end = 0;
+ //
+ //   for (let i = 0; i < path.length; i++) {
+ //     let char = path[i];
+ //     if (char === '/') start = i;
+ //     if (char === '.') end = i;
+ //   }
+ //
+ //   const pname = start > end ? path.slice(start + 1) : path.slice(start + 1, end);
+ //
+ //   if (pname.length === 0) {
+ //     throw Error ('parseError: invalid nodeJS path');
+ //   }
+ //
+ //   return pname;
+ // }
 
 /**
  *
  * Configuration Parsing Functions
  *
  */
-
-function parseOutput (opt) {
-  if (typeof opt !== 'string') {
-    throw Error('ConfigureError: output option must be a string');
-  }
-
-  return opt;
-}
 
 function parseLoadTest (options) {
   const type = typeof options;
@@ -128,7 +150,7 @@ function parseLoadTest (options) {
   }
 
   if (type === 'string') {
-    return `loadtest ${options}`;
+    return `${LOADTEST_PROGRAM} ${options}`;
   }
 
   // - otherwise, obj
@@ -145,7 +167,7 @@ function validLoadOpts (options) {
 }
 
 function loadOptsToString (options) {
-  let o = `loadtest -c ${options.concurrency} -n ${options.requests} `;
+  let o = `${LOADTEST_PROGRAM} -c ${options.concurrency} -n ${options.requests} `;
 
   if (options.post) {
     o += `-p ${options.post} `;
