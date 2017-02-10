@@ -64,7 +64,6 @@ const quasimodo = module.exports = {
   },
 
   run: function () {
-    log(this.tests);
     if (!fs.existsSync(`${DEFAULT_DIR}`)) fs.mkdirSync(`${DEFAULT_DIR}`);
 
     log(`Tests registered: ${Object.keys(this.tests).length} ...\n`);
