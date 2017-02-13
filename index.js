@@ -29,7 +29,11 @@ const quasimodo = module.exports = {
       throw Error('RegisterError: name/path/flags/args must each be strings');
     }
 
-    this.tests[name] = `node --prof --log-internal-timer-events ${flags} ${path} ${args}`;
+    if (this.tests[name] !== undefined) {
+      throw Error(`RegisterError: a test with name '${name}' has previously been registered`);
+    }
+
+    this.tests[name] = `node --prof --perf-basic-prof ${flags} ${path} ${args}`;
   },
 
   before: function before (cmd = '') {
