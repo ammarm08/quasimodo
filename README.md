@@ -28,16 +28,17 @@ quasimodo.configure({
 });
 
 // run these commands once before all tests start
-quasimodo.before(['TEST_FILE=/tmp/big-text.json', 'cat test/fixtures/big-text.txt | jq -rM "{text: .}" > $TEST_FILE']);
+quasimodo.before('TEST_FILE=/tmp/big-text.json');
+quasimodo.before('cat test/fixtures/big-text.txt | jq -rM "{text: .}" > $TEST_FILE');
 
 // run these commands once after all tests complete
-quasimodo.after(['echo DONE']);
+quasimodo.after('echo DONE');
 
 // run these commands (comma separated) before each registered test
-quasimodo.beforeEach(['echo HI']);
+quasimodo.beforeEach('echo HI');
 
 // run these commands (comma separated) after each registered test
-quasimodo.afterEach(['echo BYE']);
+quasimodo.afterEach('echo BYE');
 
 // run all tests
 quasimodo.run();
@@ -87,22 +88,7 @@ loadtest: {
 
 Register the NodeJS process to run as part of the test group
 
-
-### Quasimodo##before(['COMMAND_ONE, 'COMMAND_TWO', 'COMMAND_THREE'])
-
-An order-sensitive list of commands to run before running all the tests
-
-
-### Quasimodo##after(['COMMAND_ONE, 'COMMAND_TWO', 'COMMAND_THREE'])
-
-An order-sensitive list of commands to run after all tests finish running
-
-
-### Quasimodo##beforeEach(['COMMAND_ONE, 'COMMAND_TWO', 'COMMAND_THREE'])
-
-An order-sensitive list of commands to run before running each test
-
-
-### Quasimodo##afterEach(['COMMAND_ONE, 'COMMAND_TWO', 'COMMAND_THREE'])
-
-An order-sensitive list of commands to run after each test runs
+### Quasimodo##before('COMMAND')
+### Quasimodo##after('COMMAND')
+### Quasimodo##beforeEach('COMMAND')
+### Quasimodo##afterEach('COMMAND')
