@@ -14,6 +14,25 @@ const LOADTEST_PROGRAM = 'ab',
       PROCESS_NODE_LOGS = `node --prof-process ./isolate-*`,
       CLEAN_UP = `rm ./isolate-* ${DEFAULT_DIR}/${DEFAULT_OUTPUT} ${DEFAULT_DIR}/${DEFAULT_PROFILING}`;
 
+const SUPPORTED_LOAD_OPTS = [
+  'concurrency', 'requests', 'post', 'put', 'type', 'target',
+  'gnuplot', 'protocol', 'headers', 'keepalive', 'timelimit', 'auth'
+];
+
+const BENCH_BINDINGS = {
+  'concurrency': '-c',
+  'requests': '-n',
+  'post': '-p',
+  'put': '-u',
+  'type': '-T',
+  'gnuplot': '-g',
+  'protocol': '-f',
+  'headers': '-H',
+  'keepalive': '-k',
+  'timelimit': '-t',
+  'auth': '-A'
+};
+
 const quasimodo = module.exports = {
   tests: {},
 
@@ -39,28 +58,36 @@ const quasimodo = module.exports = {
     this.tests[name] = `node --prof ${flags} ${path} ${args}`;
   },
 
-  before: function before (commands = []) {
-    for (let cmd of commands) {
-      // TBD: throw if not string
+  before: function before (cmd = '') {
+    if (typeof cmd !== 'string') {
+      throw Error('HookError: Command must be a string');
     }
+
+    this.beforeTasks.push(cmd);
   },
 
-  after: function before (commands = []) {
-    for (let cmd of commands) {
-      // TBD: throw if not string
+  after: function after (cmd = '') {
+    if (typeof cmd !== 'string') {
+      throw Error('HookError: Command must be a string');
     }
+
+    this.afterTasks.push(cmd);
   },
 
-  beforeEach: function before (commands = []) {
-    for (let cmd of commands) {
-      // TBD: throw if not string
+  beforeEach: function beforeEach (cmd = '') {
+    if (typeof cmd !== 'string') {
+      throw Error('HookError: Command must be a string');
     }
+
+    this.beforeEachTasks.push(cmd);
   },
 
-  afterEach: function before (commands = []) {
-    for (let cmd of commands) {
-      // TBD: throw if not string
+  afterEach: function afterEach (cmd = '') {
+    if (typeof cmd !== 'string') {
+      throw Error('HookError: Command must be a string');
     }
+
+    this.afterEachTasks.push(cmd);
   },
 
   run: function () {
@@ -73,7 +100,7 @@ const quasimodo = module.exports = {
 
     fs.writeFileSync(`${DEFAULT_DIR}/${DEFAULT_SH}`, script);
 
-    const child = spawn('bash', [`${DEFAULT_DIR}/${DEFAULT_SH}`], {stido: 'inherit'});
+    const child = spawn('bash', [`${DEFAULT_DIR}/${DEFAULT_SH}`], {stdio: 'inherit'});
     child.on('exit', process.exit);
   }
 }
@@ -137,7 +164,7 @@ function parseLoadTest (options) {
   }
 
   // - otherwise, obj
-  options = only(options, ['concurrency', 'requests', 'post', 'type', 'target']);
+  options = only(options, SUPPORTED_LOAD_OPTS);
   if (validLoadOpts(options)) {
     return loadOptsToString(options);
   } else {
@@ -146,23 +173,34 @@ function parseLoadTest (options) {
 }
 
 function validLoadOpts (options) {
-  return options.concurrency && options.requests && options.target;
+  if (options.post && !options.type || options.put && !options.type) {
+    return false;
+  } else if (options.headers && typeof options.headers !== 'object'){
+    return false;
+  } else {
+    return options.concurrency && options.requests && options.target;
+  }
 }
 
 function loadOptsToString (options) {
-  let o = `${LOADTEST_PROGRAM} -c ${options.concurrency} -n ${options.requests} `;
+  let o = [LOADTEST_PROGRAM];
 
-  if (options.post) {
-    o += `-p ${options.post} `;
+  for (let opt in options) {
+    if (typeof options[opt] === 'object') {
+      // nested options
+      let params = options[opt];
+      for (let p in params) {
+        o.push(`${BENCH_BINDINGS[opt]} "${p}:${params[p]}"`);
+      }
+    } else if (opt !== 'target') {
+      // flat options
+      o.push(`${BENCH_BINDINGS[opt]} ${options[opt]}`);
+    }
   }
 
-  if (options.type) {
-    o += `-T ${options.type} `;
-  }
+  o.push(options.target);
 
-  o += options.target;
-
-  return o;
+  return o.join(' ');
 }
 
 /**
