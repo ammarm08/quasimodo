@@ -33,7 +33,7 @@ const quasimodo = module.exports = {
       throw Error(`RegisterError: a test with name '${name}' has previously been registered`);
     }
 
-    this.tests[name] = `node --prof --perf-basic-prof ${flags} ${path} ${args}`;
+    this.tests[name] = `node --prof ${flags} ${path} ${args}`;
   },
 
   before: function before (cmd = '') {
