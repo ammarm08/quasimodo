@@ -44,29 +44,19 @@ quasimodo.afterEach('echo BYE');
 quasimodo.run();
 ```
 
-What the following test file will show as in the terminal:
-
-```
-$ node quasimodo-test
-
-Tests registered: 2 ...
-
-Running all tests ...
-
-DONE
-```
-
 This should have generated a `quasimodo_tests/` folder with:
-- profile-*.txt (profiling v8 CPU ticks and which functions consume these ticks)
+- profile-*.txt (profiling v8 CPU ticks)
 - results.txt (time per test)
 - quasimodo.sh (the shell script that runs all the tests you registered)
 - TODO: graphs of CPU/memory usage
 
-### Quasimodo##configure(options = {})
+### Quasimodo##configure(options = {} || )
 
 Available options:
 
-##### loadtest (By default is disabled)
+- loadtest
+- TBD
+
 ```
 loadtest: '-c 8 -n 500 -p $TEST_FILE -T application/json http://localhost:3000/end_point'
 
@@ -74,21 +64,30 @@ loadtest: '-c 8 -n 500 -p $TEST_FILE -T application/json http://localhost:3000/e
 
 // These are currently the only params you can pass if you use an object
 loadtest: {
-  concurrency: 8,
-  requests: 500,
-  post: '$TEST_FILE',
-  type: 'application/json',
-  target: 'http://localhost:3000/endpoint'
+  concurrency: INTEGER,
+  requests: INTEGER,
+  post: 'post data',
+  put: 'put data',
+  type: 'Content-Type',
+  target: 'url',
+  gnuplot: 'output_filename',
+  protocol: 'ssl2/tls1/etc',
+  headers: {
+    'header-key': 'header-value',
+    'another-header': 'another-value',
+    ...
+  },
+  keepalive: BOOLEAN,
+  timelimit: INTEGER,
+  auth: 'username:password'
 }
 
 ```
 
+### Methods
 
-### Quasimodo##registerTest(name, path_to_script, flags, args)
-
-Register the NodeJS process to run as part of the test group
-
-### Quasimodo##before('COMMAND')
-### Quasimodo##after('COMMAND')
-### Quasimodo##beforeEach('COMMAND')
-### Quasimodo##afterEach('COMMAND')
+`Quasimodo##registerTest(name, path_to_script, flags, args)`
+`Quasimodo##before('some cmd')`
+`Quasimodo##after('some cmd')`
+`Quasimodo##beforeEach('some cmd')`
+`Quasimodo##afterEach('some cmd')`
