@@ -50,7 +50,7 @@ This should have generated a `quasimodo_tests/` folder with:
 - quasimodo.sh (the shell script that runs all the tests you registered)
 - TODO: graphs of CPU/memory usage
 
-### Quasimodo##configure(options = {} || )
+### Quasimodo##configure(options = {})
 
 Available options:
 
@@ -86,8 +86,8 @@ loadtest: {
 
 ### Methods
 
-`Quasimodo##registerTest(name, path_to_script, flags, args)`
-`Quasimodo##before('some cmd')`
-`Quasimodo##after('some cmd')`
-`Quasimodo##beforeEach('some cmd')`
-`Quasimodo##afterEach('some cmd')`
+- `Quasimodo##registerTest(name, path_to_script, flags, args)`
+- `Quasimodo##before('some cmd')`
+- `Quasimodo##after('some cmd')`
+- `Quasimodo##beforeEach('some cmd')`
+- `Quasimodo##afterEach('some cmd')`
