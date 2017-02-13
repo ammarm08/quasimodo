@@ -25,7 +25,11 @@ const quasimodo = module.exports = {
   },
 
   registerTest: function registerTest (name, path, flags, args = '') {
-    this.tests[name] = `node --prof ${flags} ${path} ${args}`;
+    if ((typeof name && typeof path && typeof path && typeof args) !== 'string') {
+      throw Error('RegisterError: name/path/flags/args must each be strings');
+    }
+
+    this.tests[name] = `node --prof --log-internal-timer-events ${flags} ${path} ${args}`;
   },
 
   before: function before (cmd = '') {
