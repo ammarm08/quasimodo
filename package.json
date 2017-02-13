@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "loadtest": "^2.3.0",
     "stackvis": "^0.4.0"
   }
 }

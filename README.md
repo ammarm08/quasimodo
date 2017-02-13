@@ -2,7 +2,7 @@
 
 Automating some NodeJS profiling/load-testing so I have more time for shenanigans.
 
-Load-testing only works if your machine is compatible with apache-bench (`ab`)
+Load-testing uses `ab` on Linux and `loadtest` everywhere else.
 
 ## Sample Usage (TBD)
 

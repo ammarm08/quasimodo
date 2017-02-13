@@ -14,7 +14,6 @@ const quasimodo = module.exports = {
   loadtest_path: '',
 
   configure: function configure (options = {}) {
-    log('Configuring tests ...\n');
     for (let opt in options) {
       let v = options[opt];
 
