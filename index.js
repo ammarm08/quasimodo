@@ -2,36 +2,8 @@
 
 const spawn = require('child_process').spawn,
       fs   = require('fs'),
+      config = require('./lib/config'),
       log  = (...args) => console.log(...args);
-
-const DEFAULT_DIR = './quasimodo_tests',
-      DEFAULT_SH = 'quasimodo.sh',
-      DEFAULT_OUTPUT = 'results.txt',
-      DEFAULT_PROFILING = 'profile-*.txt';
-
-const LOADTEST_PROGRAM = 'ab',
-      KILL_NODE = 'pgrep -n node | xargs kill',
-      PROCESS_NODE_LOGS = `node --prof-process ./isolate-*`,
-      CLEAN_UP = `rm ./isolate-* ${DEFAULT_DIR}/${DEFAULT_OUTPUT} ${DEFAULT_DIR}/${DEFAULT_PROFILING}`;
-
-const SUPPORTED_LOAD_OPTS = [
-  'concurrency', 'requests', 'post', 'put', 'type', 'target',
-  'gnuplot', 'protocol', 'headers', 'keepalive', 'timelimit', 'auth'
-];
-
-const BENCH_BINDINGS = {
-  'concurrency': '-c',
-  'requests': '-n',
-  'post': '-p',
-  'put': '-u',
-  'type': '-T',
-  'gnuplot': '-g',
-  'protocol': '-f',
-  'headers': '-H',
-  'keepalive': '-k',
-  'timelimit': '-t',
-  'auth': '-A'
-};
 
 const quasimodo = module.exports = {
   tests: {},
@@ -91,16 +63,16 @@ const quasimodo = module.exports = {
   },
 
   run: function () {
-    if (!fs.existsSync(`${DEFAULT_DIR}`)) fs.mkdirSync(`${DEFAULT_DIR}`);
+    if (!fs.existsSync(`${config.default_dir}`)) fs.mkdirSync(`${config.default_dir}`);
 
     log(`Tests registered: ${Object.keys(this.tests).length} ...\n`);
     log(`Running all tests ...\n`);
 
     const script = writeTestScript(this);
 
-    fs.writeFileSync(`${DEFAULT_DIR}/${DEFAULT_SH}`, script);
+    fs.writeFileSync(`${config.default_dir}/${config.default_sh}`, script);
 
-    const child = spawn('bash', [`${DEFAULT_DIR}/${DEFAULT_SH}`], {stdio: 'inherit'});
+    const child = spawn('bash', [`${config.default_dir}/${config.default_sh}`], {stdio: 'inherit'});
     child.on('exit', process.exit);
   }
 }
@@ -113,19 +85,19 @@ const quasimodo = module.exports = {
  function writeTestScript (app) {
    const cmds = [];
 
-   cmds.push(`${CLEAN_UP}`);
+   cmds.push(`${config.default_commands.clean_up}`);
    cmds.push(...app.beforeTasks);
 
    for (let test in app.tests) {
      cmds.push(...app.beforeEachTasks);
-     cmds.push(`echo ${test} >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}; echo 'Running ${test} test'`);
+     cmds.push(`echo ${test} >> ${config.default_dir}/${config.default_output}; echo 'Running ${test} test'`);
 
      // loadtest
      if (app.loadtest_path) {
        cmds.push(`${app.tests[test]} & sleep 2`);
-       cmds.push(`${app.loadtest_path} | grep "Time taken for tests:" >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}`);
-       cmds.push(`${KILL_NODE} & sleep 2`);
-       cmds.push(`${PROCESS_NODE_LOGS} > ${DEFAULT_DIR}/profile-${test}.txt && rm ./isolate-*`);
+       cmds.push(`${app.loadtest_path} | grep "Time taken for tests:" >> ${config.default_dir}/${config.default_output}`);
+       cmds.push(`${config.default_commands.kill_node} & sleep 2`);
+       cmds.push(`${config.default_commands.process_node_logs} > ${config.default_dir}/profile-${test}.txt && rm ./isolate-*`);
 
     // time
      } else {
@@ -134,8 +106,8 @@ const quasimodo = module.exports = {
        cmds.push('THEN=`date +%s%N`');
        cmds.push('DIFF=`expr $THEN - $NOW`');
        cmds.push('MILLIS=`expr $DIFF / 1000000`');
-       cmds.push(`echo $MILLIS ms >> ${DEFAULT_DIR}/${DEFAULT_OUTPUT}`)
-       cmds.push(`${PROCESS_NODE_LOGS} > ${DEFAULT_DIR}/profile-${test}.txt && rm ./isolate-*`);
+       cmds.push(`echo $MILLIS ms >> ${config.default_dir}/${config.default_output}`)
+       cmds.push(`${config.default_commands.process_node_logs} > ${config.default_dir}/profile-${test}.txt && rm ./isolate-*`);
      }
 
      cmds.push(...app.afterEachTasks);
@@ -160,11 +132,11 @@ function parseLoadTest (options) {
   }
 
   if (type === 'string') {
-    return `${LOADTEST_PROGRAM} ${options}`;
+    return `${config.loadtest.program} ${options}`;
   }
 
   // - otherwise, obj
-  options = only(options, SUPPORTED_LOAD_OPTS);
+  options = only(options, config.loadtest.available_opts);
   if (validLoadOpts(options)) {
     return loadOptsToString(options);
   } else {
@@ -183,18 +155,18 @@ function validLoadOpts (options) {
 }
 
 function loadOptsToString (options) {
-  let o = [LOADTEST_PROGRAM];
+  let o = [config.loadtest.program];
 
   for (let opt in options) {
     if (typeof options[opt] === 'object') {
       // nested options
       let params = options[opt];
       for (let p in params) {
-        o.push(`${BENCH_BINDINGS[opt]} "${p}:${params[p]}"`);
+        o.push(`${config.loadtest.bindings[opt]} "${p}:${params[p]}"`);
       }
     } else if (opt !== 'target') {
       // flat options
-      o.push(`${BENCH_BINDINGS[opt]} ${options[opt]}`);
+      o.push(`${config.loadtest.bindings[opt]} ${options[opt]}`);
     }
   }
 
