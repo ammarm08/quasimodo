@@ -68,26 +68,65 @@ describe('Registering Tests: ', () => {
   });
 });
 
-// describe('Configuring Test Runner: ', () => {
-//   describe('##configure: ', () => {
-//     it ('should not accept non-Object parameter', done => {
-//
-//     });
-//
-//     it ('should accept a String as a loadtest option', done => {
-//
-//     });
-//
-//     it ('should accept an Object as a loadtest option', done => {
-//
-//     });
-//
-//     it ('should update loadtest_path upon successful loadtest configuration', done => {
-//
-//     });
-//   });
-// });
-//
+describe('Configuring Test Runner: ', () => {
+  let app = Object.assign({}, proto);
+
+  describe('##configure: ', () => {
+    it ('should not accept non-Object parameter', done => {
+      (function configureUndefined () { app.configure(); }).should.throw();
+      (function configureString () { app.configure('string'); }).should.throw();
+      (function configureInteger () { app.configure(5); }).should.throw();
+      (function configureArr () { app.configure([]); }).should.throw();
+      (function configureFn () { app.configure(function () {}); }).should.throw();
+      done();
+    });
+
+    it ('should accept a String as a loadtest option', done => {
+      app = Object.assign({}, proto);
+
+      (function loadtestConfigureString () {
+        app.configure({
+          loadtest: '-c 2 -n 50 http://localhost:3000'
+        })
+      }).should.not.throw();
+      done();
+    });
+
+    it ('should accept an Object as a loadtest option', done => {
+      app = Object.assign({}, proto);
+
+      (function loadtestConfigureObj () {
+        app.configure({
+          loadtest: {
+            concurrency: 2,
+            requests: 50,
+            target: 'http://localhost:3000'
+          }
+        })
+      }).should.not.throw();
+
+      done();
+    });
+
+    it ('should update loadtest_path upon successful loadtest configuration', done => {
+      app = Object.assign({}, proto);
+
+      app.configure({
+        loadtest: {
+          concurrency: 5,
+          requests: 100,
+          post: '$FILE',
+          type: 'application/json',
+          target: 'http://localhost:8080'
+        }
+      });
+
+      app.loadtest_path.should.not.equal('');
+      done();
+    });
+  });
+});
+
 describe('Adding Hooks to Tests', () => {
   let app = Object.assign({}, proto);
   let task = 'echo YO';
