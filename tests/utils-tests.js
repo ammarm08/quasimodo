@@ -83,7 +83,44 @@ describe('Parsing & Validating Parameters:', () => {
   });
 
   describe('##validLoadOpts: ', () => {
+    const opts = {
+      concurrency: 5,
+      requests: 10,
+      target: 'http://localhost:3000'
+    };
 
+    it('should not validate options if a Post is specified but a Type is not', done => {
+      const invalid = Object.assign({}, opts, {post: '$FILE'});
+      utils.validLoadOpts(invalid).should.equal(false);
+      done();
+    });
+
+    it('should not validate options if a Put is specified but a Type is not', done => {
+      const invalid = Object.assign({}, opts, {put: '$FILE'});
+      utils.validLoadOpts(invalid).should.equal(false);
+      done();
+    });
+
+    it('should not validate options if a Concurrency, Requests, or Target param is not specified', done => {
+      utils.validLoadOpts({}).should.equal(false);
+
+      utils.validLoadOpts({concurrency: opts.concurrency}).should.equal(false);
+      utils.validLoadOpts({requests: opts.requests}).should.equal(false);
+      utils.validLoadOpts({target: opts.target}).should.equal(false);
+
+      utils.validLoadOpts({concurrency: opts.concurrency, requests: opts.requests}).should.equal(false);
+      utils.validLoadOpts({requests: opts.requests, target: opts.target}).should.equal(false);
+      utils.validLoadOpts({concurrency: opts.concurrency, target: opts.target}).should.equal(false);
+
+      done();
+    });
+
+    it('should validate options that have all required params', done => {
+      utils.validLoadOpts(opts).should.equal(true);
+      utils.validLoadOpts(Object.assign({}, opts, {post: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.validLoadOpts(Object.assign({}, opts, {put: '$FILE', type: 'application/json'})).should.equal(true);
+      done();
+    });
   });
 
   describe('##loadOptsToString: ', () => {
