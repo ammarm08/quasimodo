@@ -14,76 +14,71 @@ const utils = require('../lib/utils'),
 describe('Writing & Running Scripts: ', () => {
   const script = 'echo hi';
 
-  beforeEach(done => {
+  before(done => {
     utils.mkdirIfNecessary();
     done();
   });
 
-  afterEach(done => {
+  after(done => {
     exec(`rm -r ${config.default_dir}`, () => {
       done();
-    });
+    })
   })
 
-  describe('##runScript: ', () => {
+  describe('##writeScriptToFile: ', () => {
     it ('should throw error if no input provided', done => {
-      (function noInput () { utils.runScript(); }).should.throw();
+      (function noInput () { utils.writeScriptToFile(); }).should.throw();
       done();
     });
 
     it ('should throw error if input is not a string', done => {
-      (function integerInput () { utils.runScript(5); }).should.throw();
-      (function arrInput () { utils.runScript([]); }).should.throw();
-      (function objInput () { utils.runScript({}); }).should.throw();
-      (function fnInput () { utils.runScript(function () {}); }).should.throw();
+      (function integerInput () { utils.writeScriptToFile(5); }).should.throw();
+      (function arrInput () { utils.writeScriptToFile([]); }).should.throw();
+      (function objInput () { utils.writeScriptToFile({}); }).should.throw();
+      (function fnInput () { utils.writeScriptToFile(function () {}); }).should.throw();
 
       done();
     });
 
     it ('should write script to file', done => {
-      utils.runScript(script);
+      utils.writeScriptToFile(script);
       fs.existsSync(`${config.default_dir}/${config.default_sh}`).should.equal(true);
       done();
     });
   });
-  //
-  // describe('##writeTestScript: ', () => {
-  //   it ('should throw error if no input provided', done => {
-  //
-  //   });
-  //
-  //   it ('should throw error if input is not the Quasimodo application', done => {
-  //
-  //   });
-  //
-  //   it ('should return a newline-delimited string', done => {
-  //
-  //   });
-  //
-  //   it ('should return a string that contains all before/clean-up/platform-check tasks', done => {
-  //
-  //   });
-  //
-  //   it ('should return a string that contains all beforeEach tasks', done => {
-  //
-  //   });
-  //
-  //   it ('should return a string that contains all afterEach tasks', done => {
-  //
-  //   });
-  //
-  //   it ('should return a string that contains all after tasks', done => {
-  //
-  //   });
-  //
-  //   it ('should return a string that contains all necessary test glue code (loadtest)', done => {
-  //
-  //   });
-  //
-  //   it ('should return a string that contains all necessary test glue code (no loadtest)', done => {
-  //
-  //   });
-  // });
+
+  describe('##buildScriptFromOptions: ', () => {
+    const testApp = {
+      tests: {'Server': 'node someScript.js', 'Server2': 'node someOtherScript.js'},
+      beforeTasks: ['echo RUNNING ALL TESTS'],
+      afterTasks: ['echo DONE'],
+      beforeEachTasks: ['echo TEST RUNNING'],
+      afterEachTasks: ['echo TEST COMPLETE']
+    }
+
+    it ('should throw error if input is not an object', done => {
+      (function integerInput () { utils.buildScriptFromOptions(); }).should.throw();
+      (function integerInput () { utils.buildScriptFromOptions(5); }).should.throw();
+      (function arrInput () { utils.buildScriptFromOptions([]); }).should.throw();
+      (function stringInput () { utils.buildScriptFromOptions(''); }).should.throw();
+      (function fnInput () { utils.buildScriptFromOptions(function () {}); }).should.throw();
+
+      done();
+    });
+
+    it ('should return a string that contains all hooks', done => {
+      const result = utils.buildScriptFromOptions(testApp);
+
+      result.includes(testApp.tests['Server']).should.equal(true);
+      result.includes(testApp.tests['Server2']).should.equal(true);
+      result.includes(testApp.beforeTasks[0]).should.equal(true);
+      result.includes(testApp.afterTasks[0]).should.equal(true);
+      result.includes(testApp.beforeEachTasks[0]).should.equal(true);
+      result.includes(testApp.afterEachTasks[0]).should.equal(true);
+
+      done();
+    });
+  });
 
   // describe('##mkdirIfNecessary: ', () => {
   //   it ('should create the target directory if the directory doesnt yet exist', done => {
