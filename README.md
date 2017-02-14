@@ -93,4 +93,5 @@ quasimodo.configure({
 ## TO-DO
 
 - Generate visualizations on heap usage and CPU usage over time
+- Pass in flags and arguments in array (or pass in all test registration opts in object)
 - TBD
