@@ -1,7 +1,9 @@
 'use strict';
 
 const utils = require('../lib/utils'),
-      config = require('../lib/config');
+      config = require('../lib/config'),
+      fs = require('fs'),
+      exec = require('child_process').exec;
 
 /**
  *
@@ -9,73 +11,90 @@ const utils = require('../lib/utils'),
  *
  */
 
-// describe('Writing & Running Scripts: ', () => {
-//   describe('##runScript: ', () => {
-//     it ('should throw error if no input provided', done => {
-//
-//     });
-//
-//     it ('should throw error if input is not a string', done => {
-//
-//     });
-//
-//     it ('should write script to file', done => {
-//
-//     });
-//
-//     it ('should spawn a child process to run the script', done => {
-//
-//     });
-//   });
-//
-//   describe('##writeTestScript: ', () => {
-//     it ('should throw error if no input provided', done => {
-//
-//     });
-//
-//     it ('should throw error if input is not the Quasimodo application', done => {
-//
-//     });
-//
-//     it ('should return a newline-delimited string', done => {
-//
-//     });
-//
-//     it ('should return a string that contains all before/clean-up/platform-check tasks', done => {
-//
-//     });
-//
-//     it ('should return a string that contains all beforeEach tasks', done => {
-//
-//     });
-//
-//     it ('should return a string that contains all afterEach tasks', done => {
-//
-//     });
-//
-//     it ('should return a string that contains all after tasks', done => {
-//
-//     });
-//
-//     it ('should return a string that contains all necessary test glue code (loadtest)', done => {
-//
-//     });
-//
-//     it ('should return a string that contains all necessary test glue code (no loadtest)', done => {
-//
-//     });
-//   });
-//
-//   describe('##mkdirIfNecessary: ', () => {
-//     it ('should create the target directory if the directory doesnt yet exist', done => {
-//
-//     });
-//
-//     it ('should not create a new directory if the target directory already exists', done => {
-//
-//     });
-//   });
-// });
+describe('Writing & Running Scripts: ', () => {
+  const script = 'echo hi';
+
+  beforeEach(done => {
+    utils.mkdirIfNecessary();
+    done();
+  });
+
+  afterEach(done => {
+    exec(`rm -r ${config.default_dir}`, () => {
+      done();
+    });
+  })
+
+  describe('##runScript: ', () => {
+    it ('should throw error if no input provided', done => {
+      (function noInput () { utils.runScript(); }).should.throw();
+      done();
+    });
+
+    it ('should throw error if input is not a string', done => {
+      (function integerInput () { utils.runScript(5); }).should.throw();
+      (function arrInput () { utils.runScript([]); }).should.throw();
+      (function objInput () { utils.runScript({}); }).should.throw();
+      (function fnInput () { utils.runScript(function () {}); }).should.throw();
+
+      done();
+    });
+
+    it ('should write script to file', done => {
+      utils.runScript(script);
+      fs.existsSync(`${config.default_dir}/${config.default_sh}`).should.equal(true);
+      done();
+    });
+  });
+  //
+  // describe('##writeTestScript: ', () => {
+  //   it ('should throw error if no input provided', done => {
+  //
+  //   });
+  //
+  //   it ('should throw error if input is not the Quasimodo application', done => {
+  //
+  //   });
+  //
+  //   it ('should return a newline-delimited string', done => {
+  //
+  //   });
+  //
+  //   it ('should return a string that contains all before/clean-up/platform-check tasks', done => {
+  //
+  //   });
+  //
+  //   it ('should return a string that contains all beforeEach tasks', done => {
+  //
+  //   });
+  //
+  //   it ('should return a string that contains all afterEach tasks', done => {
+  //
+  //   });
+  //
+  //   it ('should return a string that contains all after tasks', done => {
+  //
+  //   });
+  //
+  //   it ('should return a string that contains all necessary test glue code (loadtest)', done => {
+  //
+  //   });
+  //
+  //   it ('should return a string that contains all necessary test glue code (no loadtest)', done => {
+  //
+  //   });
+  // });
+
+  // describe('##mkdirIfNecessary: ', () => {
+  //   it ('should create the target directory if the directory doesnt yet exist', done => {
+  //
+  //   });
+  //
+  //   it ('should not create a new directory if the target directory already exists', done => {
+  //
+  //   });
+  // });
+});
 
 describe('Parsing & Validating Parameters:', () => {
   describe('##parseLoadTest: ', () => {
