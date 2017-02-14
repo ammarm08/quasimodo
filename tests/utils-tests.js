@@ -1,6 +1,7 @@
 'use strict';
 
-const utils = require('../lib/utils');
+const utils = require('../lib/utils'),
+      config = require('../lib/config');
 
 /**
  *
@@ -86,7 +87,51 @@ describe('Parsing & Validating Parameters:', () => {
   });
 
   describe('##loadOptsToString: ', () => {
+    const opts = {
+      concurrency: 5,
+      requests: 50,
+      post: '$TEST_FILE',
+      type: 'application/json',
+      target: 'http://localhost:3000'
+    };
 
+    const expected = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.post} -T ${opts.type} ${opts.target}`;
+
+    it('should only accept an object as a parameter', done => {
+      (function undefinedOptions () { utils.loadOptsToString(); }).should.throw();
+      (function stringOptions () { utils.loadOptsToString(''); }).should.throw();
+      (function intOptions () { utils.loadOptsToString(5); }).should.throw();
+      (function arrOptions () { utils.loadOptsToString([]); }).should.throw();
+      (function cleanOptions () { utils.loadOptsToString({}); }).should.not.throw();
+      done();
+    });
+
+    it('should construct a loadtest string from flat flags', done => {
+      utils.loadOptsToString(opts).should.equal(expected);
+      done();
+    });
+
+    it('should construct a loadtest string from nested flags', done => {
+      const nested = Object.assign({}, opts, {headers: {some_header: 'hi', some_other_header: 'bye'}});
+      const res = utils.loadOptsToString(nested);
+
+      res.includes('-H "some_header:hi"').should.equal(true);
+      res.includes('-H "some_other_header:bye"').should.equal(true);
+      done();
+    });
+
+    it('should construct a loadtest string from boolean flags', done => {
+      const flagEnabled = Object.assign({}, opts, {keepalive: true});
+      const flagDisabled = Object.assign({}, opts, {keepalive: false});
+
+      const enabledRes = utils.loadOptsToString(flagEnabled);
+      enabledRes.includes('-k').should.equal(true);
+
+      const disabledRes = utils.loadOptsToString(flagDisabled);
+      disabledRes.includes('-k').should.equal(false);
+
+      done();
+    });
   });
 
   describe('##only: ', () => {
@@ -106,6 +151,7 @@ describe('Parsing & Validating Parameters:', () => {
       (function undefinedObj () { utils.only(undefined, []); }).should.throw();
       (function stringObj () { utils.only('', []); }).should.throw();
       (function intObj () { utils.only(5, []); }).should.throw();
+      (function arrObj () { utils.only([], []); }).should.throw();
       (function cleanObj () { utils.only({}, []); }).should.not.throw();
       done();
     });
@@ -114,6 +160,7 @@ describe('Parsing & Validating Parameters:', () => {
       (function undefinedArr () { utils.only({}, undefined); }).should.throw();
       (function stringArr () { utils.only({}, ''); }).should.throw();
       (function intArr () { utils.only({}, 5); }).should.throw();
+      (function objArr () { utils.only({}, {}); }).should.throw();
       (function cleanArr () { utils.only({}, []); }).should.not.throw();
       done();
     });
