@@ -97,15 +97,6 @@ describe('Parsing & Validating Parameters:', () => {
 
     const expected = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.post} -T ${opts.type} ${opts.target}`;
 
-    it('should only accept an object as a parameter', done => {
-      (function undefinedOptions () { utils.loadOptsToString(); }).should.throw();
-      (function stringOptions () { utils.loadOptsToString(''); }).should.throw();
-      (function intOptions () { utils.loadOptsToString(5); }).should.throw();
-      (function arrOptions () { utils.loadOptsToString([]); }).should.throw();
-      (function cleanOptions () { utils.loadOptsToString({}); }).should.not.throw();
-      done();
-    });
-
     it('should construct a loadtest string from flat flags', done => {
       utils.loadOptsToString(opts).should.equal(expected);
       done();
@@ -146,24 +137,6 @@ describe('Parsing & Validating Parameters:', () => {
       name: 'Ammar',
       hometown: 'Potomac'
     };
-
-    it('should only accept an object as a first parameter', done => {
-      (function undefinedObj () { utils.only(undefined, []); }).should.throw();
-      (function stringObj () { utils.only('', []); }).should.throw();
-      (function intObj () { utils.only(5, []); }).should.throw();
-      (function arrObj () { utils.only([], []); }).should.throw();
-      (function cleanObj () { utils.only({}, []); }).should.not.throw();
-      done();
-    });
-
-    it ('should only accept an array as a second parameter', done => {
-      (function undefinedArr () { utils.only({}, undefined); }).should.throw();
-      (function stringArr () { utils.only({}, ''); }).should.throw();
-      (function intArr () { utils.only({}, 5); }).should.throw();
-      (function objArr () { utils.only({}, {}); }).should.throw();
-      (function cleanArr () { utils.only({}, []); }).should.not.throw();
-      done();
-    });
 
     it('should return only whitelisted properties', done => {
       utils.only(obj, ['name', 'hometown']).should.deepEqual(expected);
