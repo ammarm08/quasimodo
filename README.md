@@ -20,32 +20,19 @@ In the future, I may expose the configurations so you can tweak these as you wis
 
 ```js
 
-// quasimodo-test.js
+// testing two different fibonacci algorithms for n = 40
 
 const quasimodo = require('quasimodo');
 
-quasimodo.registerTest('TEST_ONE', './server.js', '--some-fancy-v8-flag --turbo', 'some_args');
-quasimodo.registerTest('TEST_TWO', './bench.js', '--some-other-fancy-v8-flags', 'some_other_args');
-
-quasimodo.configure({
-  loadtest: {
-    post: '$TEST_FILE',
-    type: 'application/json',
-    concurrency: 8,
-    requests: 500,
-    target: 'http://localhost:8080/some_end_point'
-  }
-});
+quasimodo.registerTest('TEST_ONE', './fibonacci-recursive.js', '--some-fancy-v8-flag', '40');
+quasimodo.registerTest('TEST_TWO', './fibonacci-dynamic.js', '--some-fancy-v8-flag', '40');
 
 // HOOKS
 
-quasimodo.before('TEST_FILE=/tmp/big-text.json');
-quasimodo.before('cat test/fixtures/big-text.txt | jq -rM "{text: .}" > $TEST_FILE');
+quasimodo.after('echo Done with all tests');
 
-quasimodo.after('echo DONE');
-
-quasimodo.beforeEach('echo HI');
-quasimodo.afterEach('echo BYE');
+quasimodo.beforeEach('echo Running next variant ...');
+quasimodo.afterEach('echo Finishing variant ...');
 
 quasimodo.run();
 ```
@@ -58,8 +45,7 @@ This should have generated a `quasimodo_tests/` folder with:
 
 ### Available Options
 
-- loadtest
-- TBD
+If you're testing server code or long-running processes, you can also pass `loadtest` options into `Quasimodo##configure`.
 
 You can either manually pass in the string with all args/flags ...
 ```js
