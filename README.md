@@ -69,8 +69,8 @@ quasimodo.configure({
   loadtest: {
     concurrency: INTEGER,
     requests: INTEGER,
-    post: 'post data',
-    put: 'put data',
+    post: 'filename',
+    put: 'filename',
     type: 'Content-Type',
     target: 'url',
     gnuplot: 'output_filename',
