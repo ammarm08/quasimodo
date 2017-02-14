@@ -88,6 +88,7 @@ quasimodo.configure({
 - `Quasimodo##after(command=String)`
 - `Quasimodo##beforeEach(command=String)`
 - `Quasimodo##afterEach(command=String)`
+- `Quasimodo##run()`
 
 ## TO-DO
 
