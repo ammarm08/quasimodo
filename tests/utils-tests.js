@@ -79,16 +79,6 @@ describe('Writing & Running Scripts: ', () => {
       done();
     });
   });
-
-  // describe('##mkdirIfNecessary: ', () => {
-  //   it ('should create the target directory if the directory doesnt yet exist', done => {
-  //
-  //   });
-  //
-  //   it ('should not create a new directory if the target directory already exists', done => {
-  //
-  //   });
-  // });
 });
 
 describe('Parsing & Validating Parameters:', () => {
