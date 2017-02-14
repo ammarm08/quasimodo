@@ -1,6 +1,12 @@
 # Quasimodo
 
-Automating some NodeJS profiling/load-testing so I have more time for shenanigans.
+A NodeJS performance profiler and load-tester.
+
+## Possible Use Cases
+
+- Which fibonacci algorithm runs fastest? (see `/examples/fibonacci-bench`)
+- Which server implementation handles requests fastest? (see `examples/server-bench`)
+- For each of the above, which code paths are bottlenecking performance?
 
 ## Dependencies
 
@@ -96,3 +102,8 @@ quasimodo.configure({
 - `Quasimodo##after(command=String)`
 - `Quasimodo##beforeEach(command=String)`
 - `Quasimodo##afterEach(command=String)`
+
+## TO-DO
+
+- Generate visualizations on heap usage and CPU usage over time
+- TBD
