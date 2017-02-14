@@ -79,7 +79,39 @@ const utils = require('../lib/utils'),
 
 describe('Parsing & Validating Parameters:', () => {
   describe('##parseLoadTest: ', () => {
+    const str = '-c 5 -n 500 http://localhost:3000';
+    const expectedStr = `${config.loadtest.program} ${str}`;
 
+    const opts = {
+      concurrency: 5,
+      requests: 50,
+      post: '$TEST_FILE',
+      type: 'application/json',
+      target: 'http://localhost:3000'
+    };
+    const expectedFromOpts = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.post} -T ${opts.type} ${opts.target}`;
+
+    it('should not accept an options parameter that is neither a string nor an object', done => {
+      (function parseUndefined () { utils.parseLoadTest(); }).should.throw();
+      (function parseInteger () { utils.parseLoadTest(5); }).should.throw();
+      (function parseArray () { utils.parseLoadTest([]); }).should.throw();
+      (function parseString () { utils.parseLoadTest(''); }).should.not.throw();
+      (function parseObj () { utils.parseLoadTest({}); }).should.throw();
+      (function parseObj () { utils.parseLoadTest(opts); }).should.not.throw();
+
+      done();
+    });
+
+    it('should immediately return parsed output if input is a string', done => {
+      utils.parseLoadTest('some string').should.be.a.String();
+      utils.parseLoadTest(str).should.equal(expectedStr);
+      done();
+    });
+
+    it('should parse options object and output a properly formatted string', done => {
+      utils.parseLoadTest(opts).should.equal(expectedFromOpts);
+      done();
+    });
   });
 
   describe('##validLoadOpts: ', () => {
