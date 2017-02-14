@@ -88,47 +88,74 @@ describe('Registering Tests: ', () => {
 //   });
 // });
 //
-// describe('Adding Hooks to Tests', () => {
-//   describe('##before: ', done => {
-//     it ('should reject a non-String hook', done => {
-//
-//     });
-//
-//     it ('should add valid hook to beforeTasks', done => {
-//
-//     });
-//   });
-//
-//   describe('##after: ', done => {
-//     it ('should reject a non-String hook', done => {
-//
-//     });
-//
-//     it ('should add valid hook to afterTasks', done => {
-//
-//     });
-//   });
-//
-//   describe('##beforeEach: ', done => {
-//     it ('should reject a non-String hook', done => {
-//
-//     });
-//
-//     it ('should add valid hook to beforeEachTasks', done => {
-//
-//     });
-//   });
-//
-//   describe('##afterEach: ', done => {
-//     it ('should reject a non-String hook', done => {
-//
-//     });
-//
-//     it ('should add valid hook to afterEachTasks', done => {
-//
-//     });
-//   });
-// });
+describe('Adding Hooks to Tests', () => {
+  let app = Object.assign({}, proto);
+  let task = 'echo YO';
+
+  describe('##before: ', done => {
+    it ('should reject a non-String hook', done => {
+      (function integerCmd () { app.before(5); }).should.throw();
+      (function arrCmd () { app.before([]); }).should.throw();
+      (function objCmd () { app.before({}); }).should.throw();
+      (function fnCmd () { app.before(function () {}); }).should.throw();
+      done();
+    });
+
+    it ('should add valid hook to beforeTasks', done => {
+      app.before(task);
+      app.beforeTasks.includes(task).should.equal(true);
+      done();
+    });
+  });
+
+  describe('##after: ', done => {
+    it ('should reject a non-String hook', done => {
+      (function integerCmd () { app.after(5); }).should.throw();
+      (function arrCmd () { app.after([]); }).should.throw();
+      (function objCmd () { app.after({}); }).should.throw();
+      (function fnCmd () { app.after(function () {}); }).should.throw();
+      done();
+    });
+
+    it ('should add valid hook to afterTasks', done => {
+      app.after(task);
+      app.afterTasks.includes(task).should.equal(true);
+      done();
+    });
+  });
+
+  describe('##beforeEach: ', done => {
+    it ('should reject a non-String hook', done => {
+      (function integerCmd () { app.beforeEach(5); }).should.throw();
+      (function arrCmd () { app.beforeEach([]); }).should.throw();
+      (function objCmd () { app.beforeEach({}); }).should.throw();
+      (function fnCmd () { app.beforeEach(function () {}); }).should.throw();
+      done();
+    });
+
+    it ('should add valid hook to beforeEachTasks', done => {
+      app.beforeEach(task);
+      app.beforeEachTasks.includes(task).should.equal(true);
+      done();
+    });
+  });
+
+  describe('##afterEach: ', done => {
+    it ('should reject a non-String hook', done => {
+      (function integerCmd () { app.afterEach(5); }).should.throw();
+      (function arrCmd () { app.afterEach([]); }).should.throw();
+      (function objCmd () { app.afterEach({}); }).should.throw();
+      (function fnCmd () { app.afterEach(function () {}); }).should.throw();
+      done();
+    });
+
+    it ('should add valid hook to afterEachTasks', done => {
+      app.afterEach(task);
+      app.afterEachTasks.includes(task).should.equal(true);
+      done();
+    });
+  });
+});
 
 describe('Running Tests', () => {
   // describe('##run: ', done => {
