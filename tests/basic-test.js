@@ -9,9 +9,9 @@ const proto = require('../index');
  */
 
 describe('Registering Tests: ', () => {
-  describe('##registerTest: ', () => {
-    let app = Object.assign({}, proto);
+  const app = Object.assign({}, proto);
 
+  describe('##registerTest: ', () => {
     it ('should require a test name and a test path', done => {
       (function registerNothing() { app.registerTest() }).should.throw();
       (function registerJustName() { app.registerTest('Test') }).should.throw();
@@ -69,7 +69,7 @@ describe('Registering Tests: ', () => {
 });
 
 describe('Configuring Test Runner: ', () => {
-  let app = Object.assign({}, proto);
+  const app = Object.assign({}, proto);
 
   describe('##configure: ', () => {
     it ('should not accept non-Object parameter', done => {
@@ -82,8 +82,6 @@ describe('Configuring Test Runner: ', () => {
     });
 
     it ('should accept a String as a loadtest option', done => {
-      app = Object.assign({}, proto);
-
       (function loadtestConfigureString () {
         app.configure({
           loadtest: '-c 2 -n 50 http://localhost:3000'
@@ -93,8 +91,6 @@ describe('Configuring Test Runner: ', () => {
     });
 
     it ('should accept an Object as a loadtest option', done => {
-      app = Object.assign({}, proto);
-
       (function loadtestConfigureObj () {
         app.configure({
           loadtest: {
@@ -109,8 +105,6 @@ describe('Configuring Test Runner: ', () => {
     });
 
     it ('should update loadtest_path upon successful loadtest configuration', done => {
-      app = Object.assign({}, proto);
-
       app.configure({
         loadtest: {
           concurrency: 5,
@@ -128,7 +122,7 @@ describe('Configuring Test Runner: ', () => {
 });
 
 describe('Adding Hooks to Tests', () => {
-  let app = Object.assign({}, proto);
+  const app = Object.assign({}, proto);
   let task = 'echo YO';
 
   describe('##before: ', done => {
@@ -196,8 +190,4 @@ describe('Adding Hooks to Tests', () => {
   });
 });
 
-describe('Running Tests', () => {
-  // describe('##run: ', done => {
-  // TBD
-  // });
-});
+// TODO: automate actual ##run of Quasimodo scripts
