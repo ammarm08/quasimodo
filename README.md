@@ -45,9 +45,9 @@ quasimodo.run();
 ```
 
 This should have generated a `quasimodo_tests/` folder with:
-- profile-*.txt (profiling v8 CPU ticks)
-- results.txt (time/memory per test)
-- quasimodo.sh (the shell script that runs all the tests you registered)
+- `profile-*.txt` (profiling v8 CPU ticks)
+- `results.txt` (time/memory per test)
+- `quasimodo.sh` (the shell script that runs all the tests you registered)
 - TODO: graphs of CPU/memory usage
 
 ### Available Options
@@ -65,7 +65,7 @@ quasimodo.configure({
 ... or you can specify loadtest params as options
 ```js
 quasimodo.configure({
-// -- Currently supports options --
+// -- Currently supported options --
   loadtest: {
     concurrency: INTEGER,
     requests: INTEGER,
@@ -90,7 +90,7 @@ quasimodo.configure({
 
 ### Methods
 
-- `Quasimodo##configure(options=Object || command=String)
+- `Quasimodo##configure(options=Object || args/flags=String)`
 - `Quasimodo##registerTest(name=String, path_to_script=String, flags=String, args=String)`
 - `Quasimodo##before(command=String)`
 - `Quasimodo##after(command=String)`
