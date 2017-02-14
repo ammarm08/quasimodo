@@ -1,12 +1,12 @@
 {
   "name": "quasimodo",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "CPU/Mem profiling & load testing for NodeJS applications",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test"
   },
-  "author": "",
+  "author": "Ammar Mian",
   "license": "ISC",
   "devDependencies": {
     "loadtest": "^2.3.0",
