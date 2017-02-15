@@ -8,14 +8,6 @@ A NodeJS performance profiler and load-tester.
 - Which server implementation handles requests fastest? (see `examples/server-bench`)
 - For each of the above, which code paths are bottlenecking performance?
 
-## Dependencies
-
-- Linux: `ab` (run `apt-get install apache2-utils`)
-- Mac/BSDs: `gtime` (run `brew install gnu-time`), `loadtest` (ships as dev dependency with Quasimodo)
-- Everyone else: `loadtest` (ships as dev dependency with Quasimodo)
-
-In the future, I may expose the configurations so you can tweak these as you wish.
-
 ## Sample Usage
 
 ```js
@@ -53,6 +45,16 @@ This should have generated a `quasimodo_tests/` folder with:
 - `results.txt` (time/memory per test)
 - `quasimodo.sh` (the shell script that runs all the tests you registered)
 - TODO: graphs of CPU/memory usage
+
+### Methods
+
+- `Quasimodo##configure(options=Object)`
+- `Quasimodo##registerTest(options=Object)`
+- `Quasimodo##before(command=String)`
+- `Quasimodo##after(command=String)`
+- `Quasimodo##beforeEach(command=String)`
+- `Quasimodo##afterEach(command=String)`
+- `Quasimodo##run()`
 
 ### Available Test Registration options
 
@@ -102,15 +104,13 @@ quasimodo.configure({
 
 ```
 
-### Methods
+## Dependencies
 
-- `Quasimodo##configure(options=Object)`
-- `Quasimodo##registerTest(options=Object)`
-- `Quasimodo##before(command=String)`
-- `Quasimodo##after(command=String)`
-- `Quasimodo##beforeEach(command=String)`
-- `Quasimodo##afterEach(command=String)`
-- `Quasimodo##run()`
+- Linux: `ab` (run `apt-get install apache2-utils`)
+- Mac/BSDs: `gtime` (run `brew install gnu-time`), `loadtest` (ships as dev dependency with Quasimodo)
+- Everyone else: `loadtest` (ships as dev dependency with Quasimodo)
+
+In the future, I may expose the configurations so you can tweak these as you wish.
 
 ## TO-DO
 
