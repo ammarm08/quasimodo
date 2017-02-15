@@ -82,7 +82,7 @@ quasimodo.configure({
 
 ### Methods
 
-- `Quasimodo##configure(options=Object || args/flags=String)`
+- `Quasimodo##configure(options=Object)`
 - `Quasimodo##registerTest(name=String, path_to_script=String, flags=String, args=String)`
 - `Quasimodo##before(command=String)`
 - `Quasimodo##after(command=String)`
