@@ -2,5 +2,6 @@
 
 const quasimodo = require('../index.js');
 
-quasimodo.registerTest('Recursive', './fixtures/fibonacciR.js', '--turbo --max_inlined_source_size=700', '30');
+quasimodo.registerTest({name: 'Recursive', path: './fixtures/fibonacciR.js', flags: ['--turbo --max_inlined_source_size=700'], args: ['40']});
+
 quasimodo.run();

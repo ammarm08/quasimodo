@@ -10,5 +10,6 @@ quasimodo.configure({
   }
 });
 
-quasimodo.registerTest('Server', './fixtures/server.js', '--turbo --max_inlined_source_size=700');
+quasimodo.registerTest({name: 'Server', path: './fixtures/server.js', flags: ['--turbo --max_inlined_source_size=700']});
+
 quasimodo.run();

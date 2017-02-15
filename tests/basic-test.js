@@ -12,55 +12,95 @@ describe('Registering Tests: ', () => {
   const app = Object.assign({}, proto);
 
   describe('##registerTest: ', () => {
-    it ('should require a test name and a test path', done => {
+    it ('should require an options Object', done => {
       (function registerNothing() { app.registerTest() }).should.throw();
       (function registerJustName() { app.registerTest('Test') }).should.throw();
-      (function registerJustPath() { app.registerTest(undefined, 'path.js') }).should.throw();
+      (function registerJustPath() { app.registerTest(5) }).should.throw();
+      (function registerJustPath() { app.registerTest(function () {}) }).should.throw();
+      (function registerJustPath() { app.registerTest([]) }).should.throw();
 
       done();
     });
 
-    it ('should not accept non-string parameters', done => {
-      (function registerIntName () { app.registerTest(5, 'path.js', '--flags', '0') }).should.throw();
-      (function registerIntPath () { app.registerTest('name', 5, '--flags', '0') }).should.throw();
-      (function registerIntFlags () { app.registerTest('name', 'path.js', 5, '0') }).should.throw();
-      (function registerIntArgs () { app.registerTest('name', 'path.js', '--flags', 5) }).should.throw();
+    it ('should require a "name" parameter', done => {
+      (function registerIntName () { app.registerTest({path: './some_path.js'}) }).should.throw();
+      done();
+    });
 
-      (function registerArrName () { app.registerTest([], 'path.js', '--flags', '0') }).should.throw();
-      (function registerArrPath () { app.registerTest('name', [], '--flags', '0') }).should.throw();
-      (function registerArrFlags () { app.registerTest('name', 'path.js', [], '0') }).should.throw();
-      (function registerArrArgs () { app.registerTest('name', 'path.js', '--flags', []) }).should.throw();
+    it ('should not accept a "name" parameter that is not a string', done => {
+      (function undefinedName () { app.registerTest({ name: undefined }) }).should.throw();
+      (function intName () { app.registerTest({ name: 5 }) }).should.throw();
+      (function arrName () { app.registerTest({ name: [] }) }).should.throw();
+      (function fnName () { app.registerTest({ name: function () {} }) }).should.throw();
+      (function objName () { app.registerTest({ name: {} }) }).should.throw();
+      done();
+    });
 
-      (function registerObjName () { app.registerTest({}, 'path.js', '--flags', '0') }).should.throw();
-      (function registerObjPath () { app.registerTest('name', {}, '--flags', '0') }).should.throw();
-      (function registerObjFlags () { app.registerTest('name', 'path.js', {}, '0') }).should.throw();
-      (function registerObjArgs () { app.registerTest('name', 'path.js', '--flags', {}) }).should.throw();
+    it ('should require a "path" parameter', done => {
+      (function registerIntName () { app.registerTest({name: 'Test_name'}) }).should.throw();
+      done();
+    });
 
-      (function registerFnName () { app.registerTest(function () {}, 'path.js', '--flags', '0') }).should.throw();
-      (function registerFnPath () { app.registerTest('name', function () {}, '--flags', '0') }).should.throw();
-      (function registerFnFlags () { app.registerTest('name', 'path.js', function () {}, '0') }).should.throw();
-      (function registerFnArgs () { app.registerTest('name', 'path.js', '--flags', function () {}) }).should.throw();
+    it ('should not accept a "path" parameter that is not a string', done => {
+      (function undefinedPath () { app.registerTest({ path: undefined }) }).should.throw();
+      (function intPath () { app.registerTest({ path: 5 }) }).should.throw();
+      (function arrPath () { app.registerTest({ path: [] }) }).should.throw();
+      (function fnPath () { app.registerTest({ path: function () {} }) }).should.throw();
+      (function objPath () { app.registerTest({ path: {} }) }).should.throw();
+      done();
+    });
+
+    it ('should require a "flags" parameter to be a list of strings if it is passed', done => {
+      (function registerFlagAsNonArray () {
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: 'string'});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: 5});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: {}});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: function () {}});
+      }).should.throw();
+
+      (function registerFlagAsNonStringArray () {
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: ['string', 5]});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: ['string', {}]});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', flags: ['string', function () {}]});
+      }).should.throw();
+
+      done();
+    });
+
+    it ('should require a "args" parameter to be a list of strings if it is passed', done => {
+      (function registerFlagAsNonArray () {
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: 'string'});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: 5});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: {}});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: function () {}});
+      }).should.throw();
+
+      (function registerFlagAsNonStringArray () {
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: ['string', 5]});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: ['string', {}]});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', args: ['string', function () {}]});
+      }).should.throw();
 
       done();
     });
 
     it ('should not accept a multi-word test name', done => {
-      (function multiWordTest () { app.registerTest('Two Words', 'path.js') }).should.throw();
-      (function multiWordTest () { app.registerTest('These Three Words', 'path.js') }).should.throw();
+      (function multiWordTest () { app.registerTest({name: 'Two Words', path: 'path.js'}) }).should.throw();
+      (function multiWordTest () { app.registerTest({name: 'These Three Words', path: 'path.js'}) }).should.throw();
 
       done();
     });
 
     it ('should not accept duplicate test names', done => {
-      app.registerTest('First', 'path.js');
-      (function duplicateTest () { app.registerTest('First', 'path2.js') }).should.throw();
+      app.registerTest({name: 'First', path: 'path.js'});
+      (function duplicateTest () {app.registerTest({name: 'First', path: 'path2.js'}) }).should.throw();
       done();
     });
 
     it ('should map test name with full test script as value', done => {
       app.tests['First'].should.equal('node --prof path.js');
 
-      app.registerTest('Second', 'path2.js', '--some-flags=0', 'foo');
+      app.registerTest({name: 'Second', path: 'path2.js', flags: ['--some-flags=0'], args: ['foo']});
       app.tests['Second'].should.equal('node --prof --some-flags=0 path2.js foo');
 
       done();

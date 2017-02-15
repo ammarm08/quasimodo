@@ -24,8 +24,19 @@ In the future, I may expose the configurations so you can tweak these as you wis
 
 const quasimodo = require('quasimodo');
 
-quasimodo.registerTest('TEST_ONE', './fibonacci-recursive.js', '--some-fancy-v8-flag', '40');
-quasimodo.registerTest('TEST_TWO', './fibonacci-dynamic.js', '--some-fancy-v8-flag', '40');
+quasimodo.registerTest({
+  name: 'TEST_ONE',
+  path: './fibonacci-recursive.js',
+  flags: ['--some-fancy-v8-flag'], // optional
+  args: ['40'] // optional
+});
+
+quasimodo.registerTest({
+  name: 'TEST_TWO',
+  path: './fibonacci-dynamic.js',
+  flags: ['--some-fancy-v8-flag'], // optional
+  args: ['40'] // optional
+});
 
 // HOOKS
 
@@ -43,7 +54,18 @@ This should have generated a `quasimodo_tests/` folder with:
 - `quasimodo.sh` (the shell script that runs all the tests you registered)
 - TODO: graphs of CPU/memory usage
 
-### Available Options
+### Available Test Registration options
+
+```js
+quasimodo.configure({
+  name: 'STRING', // required: test-name
+  path: 'STRING', // required: path_to_script
+  flags: ['--array', '--of', 'flags'], // optional: flags to pass to NodeJS
+  args: ['array', 'of', 'args'], // optional: args to pass to NodeJS
+});
+```
+
+### Available Configuration Options
 
 If you're testing server code or long-running processes, you can also pass `loadtest` options into `Quasimodo##configure`.
 
@@ -83,7 +105,7 @@ quasimodo.configure({
 ### Methods
 
 - `Quasimodo##configure(options=Object)`
-- `Quasimodo##registerTest(name=String, path_to_script=String, flags=String, args=String)`
+- `Quasimodo##registerTest(options=Object)`
 - `Quasimodo##before(command=String)`
 - `Quasimodo##after(command=String)`
 - `Quasimodo##beforeEach(command=String)`
