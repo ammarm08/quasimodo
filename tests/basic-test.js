@@ -70,7 +70,7 @@ describe('Registering Tests: ', () => {
     it ('should register a test with a custom flags if a flags option is passed', done => {
       const custom_flags = ['--v8', '--tweaks'];
       app.registerTest({name: 'customFlags', path: './customFlagsPath.js', flags: custom_flags});
-      app.tests['customFlags'].should.equal(`${process.execPath} --prof ${custom_flags.join(' ')} ./customFlagsPath.js`);
+      app.tests['customFlags'].should.equal(`${process.execPath} ${app.prof_flags} ${custom_flags.join(' ')} ./customFlagsPath.js`);
       done();
     });
 
@@ -94,13 +94,13 @@ describe('Registering Tests: ', () => {
     it ('should register a test with a custom args if an args option is passed', done => {
       const custom_args = ['4', '5'];
       app.registerTest({name: 'customArgs', path: './customArgsPath.js', args: custom_args});
-      app.tests['customArgs'].should.equal(`${process.execPath} --prof ./customArgsPath.js ${custom_args.join(' ')}`);
+      app.tests['customArgs'].should.equal(`${process.execPath} ${app.prof_flags} ./customArgsPath.js ${custom_args.join(' ')}`);
       done();
     });
 
     it ('should set the process.execPath as the default node binary if no binary option is passed', done => {
       app.registerTest({name: 'someTest', path: './someTestPath'});
-      app.tests['someTest'].should.equal(process.execPath + ' --prof ./someTestPath');
+      app.tests['someTest'].should.equal(`${process.execPath} ${app.prof_flags} ./someTestPath`);
       done();
     });
 
@@ -114,7 +114,7 @@ describe('Registering Tests: ', () => {
 
     it ('should register a test with a custom binary if a binary option is passed', done => {
       app.registerTest({name: 'customBinary', path: './customBinaryPath.js', binary: '/usr/bin/node'});
-      app.tests['customBinary'].should.equal('/usr/bin/node --prof ./customBinaryPath.js');
+      app.tests['customBinary'].should.equal(`/usr/bin/node ${app.prof_flags} ./customBinaryPath.js`);
       done();
     });
 
@@ -139,7 +139,7 @@ describe('Registering Tests: ', () => {
       const env_var = 'NODE_ENV=test';
 
       app.registerTest({name: 'customEnv', path: './customEnv.js', env: [env_var]});
-      app.tests['customEnv'].should.equal(`${process.execPath} ${env_var} --prof ./customEnv.js`);
+      app.tests['customEnv'].should.equal(`${process.execPath} ${env_var} ${app.prof_flags} ./customEnv.js`);
       done();
     });
 
@@ -157,10 +157,10 @@ describe('Registering Tests: ', () => {
     });
 
     it ('should map test name with full test script as value', done => {
-      app.tests['First'].should.equal(process.execPath + ' --prof path.js');
+      app.tests['First'].should.equal(`${process.execPath} ${app.prof_flags} path.js`);
 
       app.registerTest({name: 'Second', path: 'path2.js', flags: ['--some-flags=0'], args: ['foo']});
-      app.tests['Second'].should.equal(process.execPath + ' --prof --some-flags=0 path2.js foo');
+      app.tests['Second'].should.equal(`${process.execPath} ${app.prof_flags} --some-flags=0 path2.js foo`);
 
       done();
     });
