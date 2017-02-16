@@ -9,8 +9,10 @@
   "author": "Ammar Mian",
   "license": "ISC",
   "devDependencies": {
-    "loadtest": "^2.3.0",
     "mocha": "^3.2.0",
     "should": "^11.2.0"
+  },
+  "dependencies": {
+    "loadtest": "^2.3.0"
   }
 }
