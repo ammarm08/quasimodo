@@ -67,6 +67,13 @@ describe('Registering Tests: ', () => {
       done();
     });
 
+    it ('should register a test with a custom flags if a flags option is passed', done => {
+      const custom_flags = ['--v8', '--tweaks'];
+      app.registerTest({name: 'customFlags', path: './customFlagsPath.js', flags: custom_flags});
+      app.tests['customFlags'].should.equal(`${process.execPath} --prof ${custom_flags.join(' ')} ./customFlagsPath.js`);
+      done();
+    });
+
     it ('should require a "args" parameter to be a list of strings if it is passed', done => {
       (function registerFlagAsNonArray () {
         app.registerTest({name: 'Test_Name', path: './some_path.js', args: 'string'});
@@ -84,6 +91,58 @@ describe('Registering Tests: ', () => {
       done();
     });
 
+    it ('should register a test with a custom args if an args option is passed', done => {
+      const custom_args = ['4', '5'];
+      app.registerTest({name: 'customArgs', path: './customArgsPath.js', args: custom_args});
+      app.tests['customArgs'].should.equal(`${process.execPath} --prof ./customArgsPath.js ${custom_args.join(' ')}`);
+      done();
+    });
+
+    it ('should set the process.execPath as the default node binary if no binary option is passed', done => {
+      app.registerTest({name: 'someTest', path: './someTestPath'});
+      app.tests['someTest'].should.equal(process.execPath + ' --prof ./someTestPath');
+      done();
+    });
+
+    it ('should not accept a non-String binary option if passed', done => {
+      (function intBinary () { app.registerTest({name: 'test', path: 'path.js', binary: 5}) }).should.throw();
+      (function arrBinary () { app.registerTest({name: 'test', path: 'path.js', binary: []}) }).should.throw();
+      (function objBinary () { app.registerTest({name: 'test', path: 'path.js', binary: {}}) }).should.throw();
+      (function fnBinary () { app.registerTest({name: 'test', path: 'path.js', binary: function () {}}) }).should.throw();
+      done();
+    });
+
+    it ('should register a test with a custom binary if a binary option is passed', done => {
+      app.registerTest({name: 'customBinary', path: './customBinaryPath.js', binary: '/usr/bin/node'});
+      app.tests['customBinary'].should.equal('/usr/bin/node --prof ./customBinaryPath.js');
+      done();
+    });
+
+    it ('should require a "env" parameter to be a list of strings if it is passed', done => {
+      (function registerFlagAsNonArray () {
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: 'string'});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: 5});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: {}});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: function () {}});
+      }).should.throw();
+
+      (function registerFlagAsNonStringArray () {
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: ['string', 5]});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: ['string', {}]});
+        app.registerTest({name: 'Test_Name', path: './some_path.js', env: ['string', function () {}]});
+      }).should.throw();
+
+      done();
+    });
+
+    it ('should register a test with custom environment variables if env option is passed', done => {
+      const env_var = 'NODE_ENV=test';
+
+      app.registerTest({name: 'customEnv', path: './customEnv.js', env: [env_var]});
+      app.tests['customEnv'].should.equal(`${process.execPath} ${env_var} --prof ./customEnv.js`);
+      done();
+    });
+
     it ('should not accept a multi-word test name', done => {
       (function multiWordTest () { app.registerTest({name: 'Two Words', path: 'path.js'}) }).should.throw();
       (function multiWordTest () { app.registerTest({name: 'These Three Words', path: 'path.js'}) }).should.throw();
@@ -98,10 +157,10 @@ describe('Registering Tests: ', () => {
     });
 
     it ('should map test name with full test script as value', done => {
-      app.tests['First'].should.equal('node --prof path.js');
+      app.tests['First'].should.equal(process.execPath + ' --prof path.js');
 
       app.registerTest({name: 'Second', path: 'path2.js', flags: ['--some-flags=0'], args: ['foo']});
-      app.tests['Second'].should.equal('node --prof --some-flags=0 path2.js foo');
+      app.tests['Second'].should.equal(process.execPath + ' --prof --some-flags=0 path2.js foo');
 
       done();
     });

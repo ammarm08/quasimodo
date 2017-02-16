@@ -19,23 +19,27 @@ const quasimodo = require('quasimodo');
 quasimodo.registerTest({
   name: 'TEST_ONE',
   path: './fibonacci-recursive.js',
-  flags: ['--some-fancy-v8-flag'], // optional
-  args: ['40'] // optional
+  flags: ['--some', '--fancy', '-v8-flags'], // optional
+  args: ['40'], // optional
+  env: ['NODE_ENV=test', 'NODE_FOO=bar'], // optional
+  binary: '/path/to/custom/node/binary' // optional
 });
 
 quasimodo.registerTest({
   name: 'TEST_TWO',
   path: './fibonacci-dynamic.js',
-  flags: ['--some-fancy-v8-flag'], // optional
-  args: ['40'] // optional
+  flags: ['--some', '--fancy', '-v8-flags'], // optional
+  args: ['40'], // optional
+  env: ['NODE_ENV=test', 'NODE_FOO=bar'], // optional
+  binary: '/path/to/custom/node/binary' // optional
 });
 
 // HOOKS
 
-quasimodo.after('echo Done with all tests');
-
 quasimodo.beforeEach('echo Running next variant ...');
 quasimodo.afterEach('echo Finishing variant ...');
+
+quasimodo.after('echo Done with all tests');
 
 quasimodo.run();
 ```
@@ -60,10 +64,14 @@ This should have generated a `quasimodo_tests/` folder with:
 
 ```js
 quasimodo.configure({
-  name: 'STRING', // required: test-name
+
+  name: 'STRING', // required: test_name
   path: 'STRING', // required: path_to_script
-  flags: ['--array', '--of', 'flags'], // optional: flags to pass to NodeJS
-  args: ['array', 'of', 'args'], // optional: args to pass to NodeJS
+  binary: 'STRING', // optional: path_to_binary (default: process.execPath) 
+  flags: ['--array', '--of', 'flags'], // optional: flags to pass to NodeJS (default: none)
+  args: ['array', 'of', 'args'], // optional: args to pass to NodeJS (default: none)
+  env: ['array', 'of', 'environment', 'variables'] // optional: env variables to pass to NodeJS (default: none)
+  
 });
 ```
 
