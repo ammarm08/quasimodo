@@ -6,7 +6,7 @@ quasimodo.configure({
   loadtest: {
     concurrency: 8,
     requests: 5000,
-    post: '$TEST_FILE',
+    postFile: '$TEST_FILE',
     type: 'application/json',
     target: 'http://localhost:3000/'
   }

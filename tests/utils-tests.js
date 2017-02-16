@@ -20,10 +20,10 @@ describe('Writing & Running Scripts: ', () => {
   });
 
   after(done => {
-    exec(`rm -r ${config.default_dir}`, () => {
+    exec(`rm -rf ${config.default_dir}`, () => {
       done();
     })
-  })
+  });
 
   describe('##writeScriptToFile: ', () => {
     it ('should throw error if no input provided', done => {
@@ -89,11 +89,11 @@ describe('Parsing & Validating Parameters:', () => {
     const opts = {
       concurrency: 5,
       requests: 50,
-      post: '$TEST_FILE',
+      postFile: '$TEST_FILE',
       type: 'application/json',
       target: 'http://localhost:3000'
     };
-    const expectedFromOpts = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.post} -T ${opts.type} ${opts.target}`;
+    const expectedFromOpts = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.postFile} -T ${opts.type} ${opts.target}`;
 
     it('should not accept an options parameter that is neither a string nor an object', done => {
       (function parseUndefined () { utils.parseLoadTest(); }).should.throw();
@@ -125,18 +125,6 @@ describe('Parsing & Validating Parameters:', () => {
       target: 'http://localhost:3000'
     };
 
-    it('should not validate options if a Post is specified but a Type is not', done => {
-      const invalid = Object.assign({}, opts, {post: '$FILE'});
-      utils.validLoadOpts(invalid).should.equal(false);
-      done();
-    });
-
-    it('should not validate options if a Put is specified but a Type is not', done => {
-      const invalid = Object.assign({}, opts, {put: '$FILE'});
-      utils.validLoadOpts(invalid).should.equal(false);
-      done();
-    });
-
     it('should not validate options if a Concurrency, Requests, or Target param is not specified', done => {
       utils.validLoadOpts({}).should.equal(false);
 
@@ -153,8 +141,8 @@ describe('Parsing & Validating Parameters:', () => {
 
     it('should validate options that have all required params', done => {
       utils.validLoadOpts(opts).should.equal(true);
-      utils.validLoadOpts(Object.assign({}, opts, {post: '$FILE', type: 'application/json'})).should.equal(true);
-      utils.validLoadOpts(Object.assign({}, opts, {put: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.validLoadOpts(Object.assign({}, opts, {postFile: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.validLoadOpts(Object.assign({}, opts, {putFile: '$FILE', type: 'application/json'})).should.equal(true);
       done();
     });
   });
@@ -163,12 +151,12 @@ describe('Parsing & Validating Parameters:', () => {
     const opts = {
       concurrency: 5,
       requests: 50,
-      post: '$TEST_FILE',
+      postFile: '$TEST_FILE',
       type: 'application/json',
       target: 'http://localhost:3000'
     };
 
-    const expected = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.post} -T ${opts.type} ${opts.target}`;
+    const expected = `${config.loadtest.program} -c ${opts.concurrency} -n ${opts.requests} -p ${opts.postFile} -T ${opts.type} ${opts.target}`;
 
     it('should construct a loadtest string from flat flags', done => {
       utils.loadOptsToString(opts).should.equal(expected);
@@ -176,11 +164,16 @@ describe('Parsing & Validating Parameters:', () => {
     });
 
     it('should construct a loadtest string from nested flags', done => {
-      const nested = Object.assign({}, opts, {headers: {some_header: 'hi', some_other_header: 'bye'}});
+      const nested = Object.assign({}, opts, {
+        headers: {some_header: 'hi', some_other_header: 'bye'},
+        cookies: {some_cookie: 'yo', some_other_cookie: 'bro'}
+      });
       const res = utils.loadOptsToString(nested);
 
       res.includes('-H "some_header:hi"').should.equal(true);
       res.includes('-H "some_other_header:bye"').should.equal(true);
+      res.includes('-C "some_cookie:yo"').should.equal(true);
+      res.includes('-C "some_other_cookie:bro"').should.equal(true);
       done();
     });
 

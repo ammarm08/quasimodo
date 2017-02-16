@@ -63,15 +63,15 @@ This should have generated a `quasimodo_tests/` folder with:
 ### Available Test Registration options
 
 ```js
-quasimodo.configure({
+quasimodo.registerTest({
 
   name: 'STRING', // required: test_name
   path: 'STRING', // required: path_to_script
-  binary: 'STRING', // optional: path_to_binary (default: process.execPath) 
+  binary: 'STRING', // optional: path_to_binary (default: process.execPath)
   flags: ['--array', '--of', 'flags'], // optional: flags to pass to NodeJS (default: none)
   args: ['array', 'of', 'args'], // optional: args to pass to NodeJS (default: none)
   env: ['array', 'of', 'environment', 'variables'] // optional: env variables to pass to NodeJS (default: none)
-  
+
 });
 ```
 
@@ -89,24 +89,50 @@ quasimodo.configure({
 ... or you can specify loadtest params as options
 ```js
 quasimodo.configure({
-// -- Currently supported options --
+// -- Currently supported options from https://github.com/alexfernandez/loadtest --
   loadtest: {
-    concurrency: INTEGER,
-    requests: INTEGER,
-    post: 'filename',
-    put: 'filename',
-    type: 'Content-Type',
-    target: 'url',
-    gnuplot: 'output_filename',
-    protocol: 'ssl2/tls1/etc',
-    headers: {
+
+    // requests
+
+    concurrency: INTEGER, // required: # of concurrent clients to hit URL
+    requests: INTEGER, // required: # of requests to make
+    requests_per_second: INTEGER, // optional: requests per second sent to server
+    target: 'String', // required: URL to hit
+
+    // transport
+
+    protocol: 'String', // optional: ssl2/tls1/etc
+    insecure: BOOLEAN, // optional: allow invalid and self-signed certificates over https
+    cert: 'String', // optional: path_to_cert_file. requires `key`
+    key: 'String', // optional: path_to_key. requires `cert`
+    timelimit: INTEGER, // optional: max # of secs to send requests
+    timeout: INTEGER, // optional: max # of ms to wait on each request
+    keepalive: BOOLEAN, // optional: (Connection: Keep-Alive)
+
+    // data
+
+    method: 'String', // optional: GET/POST/PUT/etc
+    type: 'String', // optional: content-type
+    data: 'String', // optional: raw data to send over the wire. require `type` and `method`
+
+    postFile: 'String', // optional: path_of_file to post. requires `type`
+    putFile: 'String', // optional: path_of_file to put. requires `type`
+    patchFile: 'String', // optional: path_of_file to patch. requires `type`
+    postBody: 'String', // optional: raw data to post. requires `type`
+    patchBody: 'String', // optional: raw data to patch. requires `type`
+
+    // headers
+
+    headers: { // optional: headers to pass on each request
       'header-key': 'header-value',
       'another-header': 'another-value',
       ...
     },
-    keepalive: BOOLEAN,
-    timelimit: INTEGER,
-    auth: 'username:password'
+    cookies: { // optional: cookies to pass on each request
+      'cookie-key': 'cookie-value',
+      'another-cookie': 'another-value',
+      ...
+    }
   }
 });
 
@@ -114,14 +140,13 @@ quasimodo.configure({
 
 ## Dependencies
 
-- Linux: `ab` (run `apt-get install apache2-utils`)
-- Mac/BSDs: `gtime` (run `brew install gnu-time`), `loadtest` (ships as dev dependency with Quasimodo)
-- Everyone else: `loadtest` (ships as dev dependency with Quasimodo)
+If you're on a Mac, run `brew install gnu-time` to install `gtime`, which allows for verbose output when timing how long a process takes to run.
+
+All other dependencies ship with Quasimodo, requiring a simple `npm install` to get set up.
 
 In the future, I may expose the configurations so you can tweak these as you wish.
 
 ## TO-DO
 
 - Generate visualizations on heap usage and CPU usage over time
-- Pass in flags and arguments in array (or pass in all test registration opts in object)
 - TBD
