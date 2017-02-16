@@ -2,6 +2,12 @@
 
 A NodeJS performance profiler and load-tester.
 
+If you're on a Mac, run `brew install gnu-time` to install `gtime`, which allows for verbose output when timing how long a process takes to run.
+
+All other dependencies ship with Quasimodo, requiring a simple `npm install` to get set up.
+
+In the future, I may expose the configurations so you can tweak these as you wish.
+
 ## Possible Use Cases
 
 - Which fibonacci algorithm runs fastest? (see `/examples/fibonacci-bench`)
@@ -137,14 +143,6 @@ quasimodo.configure({
 });
 
 ```
-
-## Dependencies
-
-If you're on a Mac, run `brew install gnu-time` to install `gtime`, which allows for verbose output when timing how long a process takes to run.
-
-All other dependencies ship with Quasimodo, requiring a simple `npm install` to get set up.
-
-In the future, I may expose the configurations so you can tweak these as you wish.
 
 ## TO-DO
 
