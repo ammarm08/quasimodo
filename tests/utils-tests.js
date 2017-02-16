@@ -118,7 +118,7 @@ describe('Parsing & Validating Parameters:', () => {
     });
   });
 
-  describe('##validLoadOpts: ', () => {
+  describe('##hasRequiredFields: ', () => {
     const opts = {
       concurrency: 5,
       requests: 10,
@@ -126,23 +126,61 @@ describe('Parsing & Validating Parameters:', () => {
     };
 
     it('should not validate options if a Concurrency, Requests, or Target param is not specified', done => {
-      utils.validLoadOpts({}).should.equal(false);
+      (function () { utils.hasRequiredFields({}) }).should.throw();
 
-      utils.validLoadOpts({concurrency: opts.concurrency}).should.equal(false);
-      utils.validLoadOpts({requests: opts.requests}).should.equal(false);
-      utils.validLoadOpts({target: opts.target}).should.equal(false);
+      (function () { utils.hasRequiredFields({concurrency: opts.concurrency}) }).should.throw();
+      (function () { utils.hasRequiredFields({requests: opts.requests}) }).should.throw();
+      (function () { utils.hasRequiredFields({target: opts.target}) }).should.throw();
 
-      utils.validLoadOpts({concurrency: opts.concurrency, requests: opts.requests}).should.equal(false);
-      utils.validLoadOpts({requests: opts.requests, target: opts.target}).should.equal(false);
-      utils.validLoadOpts({concurrency: opts.concurrency, target: opts.target}).should.equal(false);
+      (function () { utils.hasRequiredFields({concurrency: opts.concurrency, requests: opts.requests}) }).should.throw();
+      (function () { utils.hasRequiredFields({requests: opts.requests, target: opts.target}) }).should.throw();
+      (function () { utils.hasRequiredFields({concurrency: opts.concurrency, target: opts.target}) }).should.throw();
+
+      done();
+    });
+
+    // TODO
+
+    it('should throw an error if params that are expected to be objects are not objects', done => {
+      const base = { concurrency: 50, requests: 200, target: 'http://localhost:8000' };
+
+      (function () { utils.hasRequiredFields(Object.assign({}, base, { headers: 'hi'})) }).should.throw();
+      (function () { utils.hasRequiredFields(Object.assign({}, base, { headers: 5})) }).should.throw();
+      (function () { utils.hasRequiredFields(Object.assign({}, base, { headers: function () {} })) }).should.throw();
+      (function () { utils.hasRequiredFields(Object.assign({}, base, { cookies: 'hi'})) }).should.throw();
+      (function () { utils.hasRequiredFields(Object.assign({}, base, { cookies: 5})) }).should.throw();
+      (function () { utils.hasRequiredFields(Object.assign({}, base, { cookies: function () {} })) }).should.throw();
 
       done();
     });
 
     it('should validate options that have all required params', done => {
-      utils.validLoadOpts(opts).should.equal(true);
-      utils.validLoadOpts(Object.assign({}, opts, {postFile: '$FILE', type: 'application/json'})).should.equal(true);
-      utils.validLoadOpts(Object.assign({}, opts, {putFile: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.hasRequiredFields(opts).should.equal(true);
+      utils.hasRequiredFields(Object.assign({}, opts, {postFile: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.hasRequiredFields(Object.assign({}, opts, {putFile: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.hasRequiredFields(Object.assign({}, opts, {putFile: '$FILE', type: 'application/json'})).should.equal(true);
+      utils.hasRequiredFields(Object.assign({}, opts, {putFile: '$FILE', type: 'application/json'})).should.equal(true);
+      done();
+    });
+  });
+
+  describe('##hasWhitelistedOnly: ', () => {
+    it('should throw an error if options are passed that do not exist in config.loadtest.available_opts', done => {
+      (function () { utils.hasWhitelistedOnly({ post: 'shouldbePostFile'}) }).should.throw();
+      (function () { utils.hasWhitelistedOnly({ foo: 'baz'}) }).should.throw();
+      (function () { utils.hasWhitelistedOnly({ header: 'shouldBeHeaders'}) }).should.throw();
+
+      done();
+    });
+
+    it('should return true if all options passed are whitelisted in config.loadtest.available_opts', done => {
+      const obj = {};
+
+      for (let allowed of config.loadtest.available_opts) {
+        obj[allowed] = 'string';
+        utils.hasWhitelistedOnly(obj).should.equal(true);
+      }
+
       done();
     });
   });
@@ -187,31 +225,6 @@ describe('Parsing & Validating Parameters:', () => {
       const disabledRes = utils.loadOptsToString(flagDisabled);
       disabledRes.includes('-k').should.equal(false);
 
-      done();
-    });
-  });
-
-  describe('##only: ', () => {
-    const obj = {
-      name: 'Ammar',
-      email: 'some@email.com',
-      hometown: 'Potomac',
-      school: 'Snobby U'
-    };
-
-    const expected = {
-      name: 'Ammar',
-      hometown: 'Potomac'
-    };
-
-    it('should return only whitelisted properties', done => {
-      utils.only(obj, ['name', 'hometown']).should.deepEqual(expected);
-      done();
-    });
-
-    it('should omit undefineds or non-string elements in list of permitted keys', done => {
-      utils.only(obj, [undefined]).should.deepEqual({});
-      utils.only(obj, ['name', undefined, 5, 'hometown']).should.deepEqual(expected);
       done();
     });
   });

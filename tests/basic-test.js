@@ -208,7 +208,7 @@ describe('Configuring Test Runner: ', () => {
         loadtest: {
           concurrency: 5,
           requests: 100,
-          post: '$FILE',
+          postFile: '$FILE',
           type: 'application/json',
           target: 'http://localhost:8080'
         }
