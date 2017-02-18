@@ -99,7 +99,7 @@ describe('Parsing & Validating Parameters:', () => {
       (function parseUndefined () { utils.parseLoadTest(); }).should.throw();
       (function parseInteger () { utils.parseLoadTest(5); }).should.throw();
       (function parseArray () { utils.parseLoadTest([]); }).should.throw();
-      (function parseString () { utils.parseLoadTest(''); }).should.not.throw();
+      (function parseString () { utils.parseLoadTest(''); }).should.throw();
       (function parseObj () { utils.parseLoadTest({}); }).should.throw();
       (function parseObj () { utils.parseLoadTest(opts); }).should.not.throw();
 
