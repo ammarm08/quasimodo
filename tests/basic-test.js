@@ -119,14 +119,14 @@ describe('Registering Tests: ', () => {
     });
 
     it ('should require a "env" parameter to be a list of strings if it is passed', done => {
-      (function registerFlagAsNonArray () {
+      (function registerEnvVarsAsNonArray () {
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: 'string'});
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: 5});
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: {}});
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: function () {}});
       }).should.throw();
 
-      (function registerFlagAsNonStringArray () {
+      (function registerEnvVarsAsNonStringArray () {
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: ['string', 5]});
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: ['string', {}]});
         app.registerTest({name: 'Test_Name', path: './some_path.js', env: ['string', function () {}]});
@@ -136,10 +136,10 @@ describe('Registering Tests: ', () => {
     });
 
     it ('should register a test with custom environment variables if env option is passed', done => {
-      const env_var = 'NODE_ENV=test';
+      const env_vars = ['NODE_ENV=test', 'NODE_SOMETHING=best'];
 
-      app.registerTest({name: 'customEnv', path: './customEnv.js', env: [env_var]});
-      app.tests['customEnv'].should.equal(`${process.execPath} ${env_var} ${app.prof_flags} ./customEnv.js`);
+      app.registerTest({name: 'customEnv', path: './customEnv.js', env: env_vars});
+      app.tests['customEnv'].should.equal(`${process.execPath} ${env_vars[0]} ${env_vars[1]} ${app.prof_flags} ./customEnv.js`);
       done();
     });
 
