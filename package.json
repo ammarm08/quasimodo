@@ -9,6 +9,10 @@
   "author": "Ammar Mian",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^3.16.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-promise": "^3.4.2",
+    "eslint-plugin-standard": "^2.0.1",
     "mocha": "^3.2.0",
     "should": "^11.2.0"
   },
